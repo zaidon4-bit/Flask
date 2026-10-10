@@ -23,7 +23,13 @@
   <div class="student-workspace">
     <header class="student-topbar">
       <div class="student-topbar-user"><span class="student-avatar">♙</span><span>{{ current_user.username }}</span><span class="student-chevron">⌄</span></div>
-      <span class="student-topbar-caption">مساحة الطالب <span class="topbar-spark">✦</span></span>
+      <div class="student-topbar-actions">
+        <span class="student-topbar-caption">مساحة الطالب <span class="topbar-spark">✦</span></span>
+        <form method="post" action="{{ url_for('logout') }}" onsubmit="return confirm('هل تريد تسجيل الخروج من حسابك؟');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="student-topbar-logout"><span aria-hidden="true">⇥</span> تسجيل الخروج</button>
+        </form>
+      </div>
     </header>
 
     <div class="student-flashlist">

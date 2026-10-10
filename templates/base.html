@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="{% if request.endpoint == 'index' or request.endpoint in ['login', 'register'] %}#03091c{% else %}#070a12{% endif %}">
   <meta name="description" content="{% if request.endpoint == 'index' %}ChemX: منصة تعليمية تساعدك على فهم الكيمياء من خلال دورات ودروس منظمة.{% else %}منصة تعليمية للدورات والدروس المحمية{% endif %}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/logo.png') }}">
   <title>{% block title %}Infinite Academy{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   {% if request.endpoint == 'index' %}<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">{% endif %}

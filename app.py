@@ -1198,7 +1198,6 @@ def admin_dashboard():
         }
     courses = Course.query.order_by(Course.created_at.desc()).all()
     lessons = Lesson.query.order_by(Lesson.course_id, Lesson.sort_order, Lesson.id).all()
-    audit_events = SecurityEvent.query.order_by(SecurityEvent.created_at.desc()).limit(60).all()
     db_health = {}
     for role, engine in db.engines.items():
         try:
@@ -1211,7 +1210,7 @@ def admin_dashboard():
     return render_template("admin.html", users=users, devices=devices, courses=courses,
                            sharing_alerts=sharing_alerts,
                            sharing_alert_total=sum(a["count"] for a in sharing_alerts),
-                           lessons=lessons, audit_events=audit_events, db_health=db_health,
+                           lessons=lessons, db_health=db_health,
                            active_device_ids=active_device_ids,
                            active_device_count=len(active_device_ids),
                            device_counts=device_counts,
@@ -1411,6 +1410,24 @@ def admin_create_course():
     return redirect(url_for("admin_dashboard"))
 
 
+@app.post("/admin/courses/<int:course_id>/delete")
+@admin_required
+def admin_delete_course(course_id):
+    """Remove a course and its lessons so they are no longer visible to students."""
+    course = db.session.get(Course, course_id)
+    if not course:
+        abort(404)
+
+    course_title = course.title
+    lesson_count = len(course.lessons)
+    db.session.delete(course)
+    db.session.commit()
+    log_event("admin_deleted_course", current_user.id,
+              f"course_id={course_id}; lessons_deleted={lesson_count}; title={course_title}")
+    flash(f"تم حذف المادة «{course_title}» وجميع دروسها، ولن تظهر للطلاب.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
 @app.post("/admin/lessons/create")
 @admin_required
 def admin_create_lesson():
@@ -1438,16 +1455,63 @@ def admin_create_lesson():
     return redirect(url_for("admin_dashboard"))
 
 
+@app.route("/admin/lessons/<int:lesson_id>/edit", methods=["GET", "POST"])
+@admin_required
+def admin_edit_lesson(lesson_id):
+    """Edit lesson metadata and its VdoCipher reference from the admin console."""
+    lesson = db.session.get(Lesson, lesson_id)
+    if not lesson:
+        abort(404)
+
+    courses = Course.query.order_by(Course.title.asc()).all()
+    if request.method == "POST":
+        try:
+            course_id = int(request.form.get("course_id", ""))
+            sort_order = int(request.form.get("sort_order", "1"))
+        except ValueError:
+            flash("تحقق من المادة وترتيب الدرس.", "error")
+            return redirect(url_for("admin_edit_lesson", lesson_id=lesson_id))
+
+        course = db.session.get(Course, course_id)
+        title = request.form.get("title", "").strip()[:180]
+        video_id = request.form.get("vdocipher_video_id", "").strip()[:128]
+        description = request.form.get("description", "").strip()
+        is_published = request.form.get("is_published") == "on"
+
+        if not course or not title or not video_id or not 1 <= sort_order <= 100000:
+            flash("املأ عنوان الدرس وVideo ID واختر مادة صحيحة وترتيباً بين 1 و100000.", "error")
+        elif not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", video_id):
+            flash("Video ID يجب أن يحتوي على أحرف إنجليزية وأرقام وشرطات فقط.", "error")
+        else:
+            old_course_id = lesson.course_id
+            lesson.course_id = course_id
+            lesson.title = title
+            lesson.description = description
+            lesson.vdocipher_video_id = video_id
+            lesson.sort_order = sort_order
+            lesson.is_published = is_published
+            db.session.commit()
+            log_event(
+                "admin_updated_lesson", current_user.id,
+                f"lesson_id={lesson.id}; old_course_id={old_course_id}; course_id={course_id}; published={is_published}",
+            )
+            flash("تم حفظ تعديلات الدرس.", "success")
+            return redirect(url_for("admin_dashboard"))
+
+    return render_template("edit_lesson.html", lesson=lesson, courses=courses)
+
+
 @app.post("/admin/lessons/<int:lesson_id>/delete")
 @admin_required
 def admin_delete_lesson(lesson_id):
     lesson = db.session.get(Lesson, lesson_id)
     if not lesson:
         abort(404)
+    lesson_title = lesson.title
     db.session.delete(lesson)
     db.session.commit()
-    log_event("admin_deleted_lesson", current_user.id, f"lesson_id={lesson_id}")
-    flash("تم حذف الدرس من فهرس الموقع.", "success")
+    log_event("admin_deleted_lesson", current_user.id, f"lesson_id={lesson_id}; title={lesson_title}")
+    flash("تم حذف الدرس من فهرس الموقع. لم يُحذف ملف الفيديو الأصلي من VdoCipher.", "success")
     return redirect(url_for("admin_dashboard"))
 
 

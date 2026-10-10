@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}تعديل الدرس | لوحة الإدارة{% endblock %}
+{% block content %}
+<section class="page-title">
+  <span class="eyebrow">ADMIN CONSOLE</span>
+  <h1>تعديل درس الفيديو</h1>
+  <p>عدّل معلومات الدرس أو Video ID إذا أُضيف فيديو بالخطأ. يمكنك إخفاء الدرس عن الطلاب بإلغاء نشره.</p>
+</section>
+<section class="panel" style="max-width:820px;margin-inline:auto">
+  <form class="form-stack" method="post" action="{{ url_for('admin_edit_lesson', lesson_id=lesson.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="course_id">المادة</label>
+      <select id="course_id" name="course_id" required>
+        {% for c in courses %}<option value="{{ c.id }}" {% if c.id == lesson.course_id %}selected{% endif %}>{{ c.title }} (ID {{ c.id }})</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="title">عنوان الدرس</label>
+      <input id="title" name="title" maxlength="180" value="{{ lesson.title }}" required>
+    </div>
+    <div class="field">
+      <label for="vdocipher_video_id">VdoCipher Video ID</label>
+      <input id="vdocipher_video_id" name="vdocipher_video_id" maxlength="128" value="{{ lesson.vdocipher_video_id }}" dir="ltr" required>
+      <p class="tiny muted">إذا كان الفيديو خاطئاً، ضع معرّف الفيديو الصحيح فقط. لا تضع مفتاح API السري هنا.</p>
+    </div>
+    <div class="field">
+      <label for="description">الوصف</label>
+      <textarea id="description" name="description" maxlength="4000">{{ lesson.description }}</textarea>
+    </div>
+    <div class="field">
+      <label for="sort_order">ترتيب الدرس</label>
+      <input id="sort_order" type="number" name="sort_order" value="{{ lesson.sort_order }}" min="1" max="100000" required>
+    </div>
+    <label style="display:flex;align-items:center;gap:10px">
+      <input type="checkbox" name="is_published" {% if lesson.is_published %}checked{% endif %} style="width:auto">
+      نشر الدرس وإظهاره للطلاب
+    </label>
+    <div class="actions">
+      <button type="submit">حفظ التعديلات</button>
+      <a class="btn small-btn secondary" href="{{ url_for('admin_dashboard') }}">إلغاء والعودة</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
