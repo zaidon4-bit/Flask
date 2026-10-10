@@ -39,6 +39,11 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Block screenshots, screen recording and the recent-apps preview for the whole app.
+        window.setFlags(
+            android.view.WindowManager.LayoutParams.FLAG_SECURE,
+            android.view.WindowManager.LayoutParams.FLAG_SECURE
+        )
         if (BuildConfig.ACADEMY_BASE_URL.contains(".invalid")) {
             showMessage(
                 "قبل بناء التطبيق، حدّد رابط موقع Infinite Academy المنشور.\n\n" +

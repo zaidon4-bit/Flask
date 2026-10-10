@@ -106,6 +106,7 @@ def env_flag(name: str, default: bool) -> bool:
 
 # Anti-sharing controls.
 SINGLE_SESSION = env_flag("SINGLE_SESSION", True)        # a newer login signs the older one out
+APP_ONLY_STUDENTS = env_flag("APP_ONLY_STUDENTS", True)  # students log in and stream only from the Android app
 WATERMARK_ENABLED = env_flag("WATERMARK_ENABLED", True)  # moving watermark with the student's identity
 FINGERPRINT_RE = re.compile(r"[0-9a-f]{64}")
 # Native Android sends a random UUID generated per app installation. Never store it raw.
@@ -692,6 +693,15 @@ def learning_access_denial(user, *, resource: str, resource_id: int, api: bool =
     if user.role == "admin":
         return None
 
+    if APP_ONLY_STUDENTS and not session.get("native_app"):
+        log_event("browser_stream_attempt_blocked", user.id,
+                  f"resource={resource}; resource_id={resource_id}")
+        message = "مشاهدة الدروس متاحة من تطبيق ChemX فقط. افتح التطبيق وسجّل الدخول منه."
+        if api:
+            return jsonify({"error": "app_required", "message": message}), 403
+        flash(message, "error")
+        return redirect(url_for("dashboard"))
+
     if not user.account_is_active:
         log_event("learning_access_denied_inactive_account", user.id,
                   f"resource={resource}; resource_id={resource_id}; status={user.status}")
@@ -948,6 +958,11 @@ def login():
                 flash("تعذّر تسجيل الدخول لهذا الحساب. تواصل مع الإدارة.", "error")
                 return render_template("auth.html", mode="login",
                                        support_whatsapp_url=whatsapp_support_url(user, "account"))
+            # Students may log in only from the Android app (browser logins carry no installation id).
+            if APP_ONLY_STUDENTS and user.role != "admin" and not request.form.get("app_installation_id", "").strip():
+                log_event("browser_student_login_blocked", user.id)
+                flash("تسجيل دخول الطلاب متاح من تطبيق ChemX فقط. حمّل التطبيق وسجّل الدخول منه.", "error")
+                return render_template("auth.html", mode="login"), 403
             # Native app logins require an ECDSA proof from the installation's Android Keystore key.
             # Browser logins remain supported, but a native-bound cookie alone cannot re-authorize an APK.
             native_proof = None
@@ -986,6 +1001,7 @@ def login():
             session.clear()
             login_user(user, remember=False, fresh=True)
             session["session_version"] = user.session_version
+            session["native_app"] = bool(native_proof)  # set only after a verified Keystore proof
             start_single_session(user)
             user.last_login_at = utcnow()
             db.session.commit()
