@@ -4,7 +4,9 @@
     <application
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
-        android:label="Infinite Academy"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="ChemX"
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
         <activity
