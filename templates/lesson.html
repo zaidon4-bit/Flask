@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}{{ lesson.title }} | {{ lesson.course.title }} | ChemX{% endblock %}
+{% block content %}
+<div class="chem-lesson-page-wrap">
+  <nav class="lesson-breadcrumbs" aria-label="مسار الصفحة">
+    <a class="lesson-back-link" href="{{ url_for('course_detail', course_id=lesson.course_id) }}">
+      <span aria-hidden="true">←</span>
+      <span>العودة إلى المادة</span>
+      <span class="lesson-back-icon" aria-hidden="true">▤</span>
+    </a>
+    <span class="lesson-breadcrumb-current">{{ lesson.course.title }}</span>
+  </nav>
+
+  <section class="lesson-heading-card" aria-labelledby="lesson-title">
+    <div class="lesson-heading-art" aria-hidden="true"></div>
+    <div class="lesson-heading-content">
+      <span class="lesson-eyebrow"><span aria-hidden="true">⚗</span> المادة · {{ lesson.course.title }}</span>
+      <p class="lesson-number">الدرس {{ lesson.sort_order }}</p>
+      <h1 id="lesson-title">{{ lesson.title }}</h1>
+      <p class="lesson-description">{{ lesson.description or 'تابع هذا الدرس خطوة بخطوة، ودوّن أهم الأفكار أثناء المشاهدة.' }}</p>
+    </div>
+    <div class="lesson-heading-mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="42" ry="15"/><ellipse cx="50" cy="50" rx="42" ry="15" transform="rotate(60 50 50)"/><ellipse cx="50" cy="50" rx="42" ry="15" transform="rotate(120 50 50)"/><circle cx="50" cy="50" r="6"/></svg>
+    </div>
+  </section>
+
+  <div class="lesson-learning-grid">
+    <section class="lesson-player-column" aria-labelledby="player-heading">
+      <div class="lesson-player-card">
+        <div class="lesson-section-heading">
+          <div class="lesson-section-title">
+            <span class="lesson-section-icon" aria-hidden="true">▷</span>
+            <div><h2 id="player-heading">مشغل الدرس</h2><p>شاهد المحتوى التعليمي ضمن جلسة مشاهدة آمنة</p></div>
+          </div>
+          <span class="lesson-secure-badge"><span aria-hidden="true">●</span> مشاهدة آمنة</span>
+        </div>
+        {% if vdocipher_configured %}
+          <div class="lesson-video-shell">
+            <div class="video-frame lesson-video-frame" id="lesson-video-frame"
+                 data-playback-url="{{ playback_url }}"
+                 data-csrf-token="{{ csrf_token() }}">
+              <div id="lesson-video-status" class="video-loading lesson-video-loading" role="status" aria-live="polite">
+                <span class="lesson-loading-orbit" aria-hidden="true">⚗</span>
+                <strong>جارٍ تجهيز الدرس</strong>
+                <span>يتم التحقق من صلاحية المشاهدة والجهاز المسجّل…</span>
+              </div>
+            </div>
+          </div>
+          <p class="lesson-security-note"><span aria-hidden="true">♢</span> يتحقق الخادم من الحساب والجهاز قبل إصدار صلاحية تشغيل قصيرة العمر. لا يُرسل مفتاح VdoCipher السري إلى المتصفح.</p>
+          <script defer src="{{ url_for('static', filename='lesson-player.js') }}"></script>
+        {% else %}
+          <div class="lesson-video-shell lesson-video-not-configured">
+            <div class="lesson-video-placeholder" role="status">
+              <span class="lesson-placeholder-icon" aria-hidden="true">▷</span>
+              <h3>الفيديو غير مهيأ بعد</h3>
+              <p>هذه نسخة معاينة للواجهة. عند ضبط إعدادات VdoCipher سيظهر الفيديو المحمي هنا.</p>
+              <span class="lesson-config-hint">معرّف الفيديو: <code>{{ lesson.vdocipher_video_id }}</code></span>
+            </div>
+          </div>
+          <p class="lesson-security-note"><span aria-hidden="true">♢</span> تبقى صلاحيات تشغيل الفيديو والتحقق من الحساب والجهاز خاضعة للخادم.</p>
+        {% endif %}
+      </div>
+
+      <section class="lesson-about-card" aria-labelledby="lesson-about-heading">
+        <div class="lesson-about-icon" aria-hidden="true">ⓘ</div>
+        <div>
+          <h2 id="lesson-about-heading">عن هذا الدرس</h2>
+          <p>{{ lesson.description or 'درس من دروس مادة ' ~ lesson.course.title ~ '، يمكنك العودة إلى المادة لمتابعة بقية الدروس المنشورة.' }}</p>
+        </div>
+      </section>
+    </section>
+
+    <aside class="lesson-side-column" aria-label="معلومات الدرس">
+      <section class="lesson-info-card">
+        <div class="lesson-info-top">
+          <span class="lesson-info-icon" aria-hidden="true">⚗</span>
+          <div><span class="lesson-info-label">المادة</span><h2>{{ lesson.course.title }}</h2></div>
+        </div>
+        <div class="lesson-info-divider"></div>
+        <div class="lesson-info-row"><span>رقم الدرس</span><strong>{{ lesson.sort_order }}</strong></div>
+        <div class="lesson-info-row"><span>حالة المحتوى</span><strong class="lesson-published-state"><span aria-hidden="true">●</span> منشور</strong></div>
+        <a class="lesson-return-cta" href="{{ url_for('course_detail', course_id=lesson.course_id) }}"><span>العودة إلى المادة</span><span aria-hidden="true">←</span></a>
+      </section>
+
+      <section class="lesson-study-card" aria-labelledby="study-tips-heading">
+        <div class="lesson-study-title"><span aria-hidden="true">✧</span><h2 id="study-tips-heading">للاستفادة من الدرس</h2></div>
+        <div class="lesson-study-item"><span aria-hidden="true">01</span><p>شاهد الشرح بتركيز وتابع الأفكار الأساسية.</p></div>
+        <div class="lesson-study-item"><span aria-hidden="true">02</span><p>دوّن المصطلحات أو الأسئلة التي تحتاج إلى مراجعة.</p></div>
+        <div class="lesson-study-item"><span aria-hidden="true">03</span><p>ارجع إلى قائمة دروس المادة لمتابعة تعلمك بالترتيب.</p></div>
+      </section>
+
+      <div class="lesson-side-decoration" aria-hidden="true"><span>CHEMX</span><svg viewBox="0 0 80 80"><ellipse cx="40" cy="40" rx="33" ry="12"/><ellipse cx="40" cy="40" rx="33" ry="12" transform="rotate(60 40 40)"/><ellipse cx="40" cy="40" rx="33" ry="12" transform="rotate(120 40 40)"/><circle cx="40" cy="40" r="4"/></svg></div>
+    </aside>
+  </div>
+  <div class="lesson-bottom-return"><a href="{{ url_for('course_detail', course_id=lesson.course_id) }}"><span aria-hidden="true">←</span> العودة إلى {{ lesson.course.title }}</a><span>خطوة صغيرة اليوم… تصنع فرقاً كبيراً غداً</span></div>
+</div>
+{% endblock %}

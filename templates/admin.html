@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}لوحة الإدارة | Infinite Academy{% endblock %}
+{% block content %}
+<section class="page-title">
+  <span class="eyebrow">ADMIN CONSOLE</span>
+  <h1>لوحة إدارة المنصة</h1>
+  <p>فعّل حساب الطالب أو ألغِ تفعيله، تواصل معه عبر واتساب، وراجع الأجهزة والدورات.</p>
+</section>
+<div class="alert-new" data-sharing-alert-new hidden><a href="{{ url_for('admin_dashboard') }}">🔔 تنبيه جديد: حساب ظهر عليه جهازان بنفس الوقت — اضغط للتحديث</a></div>
+<div class="alert-new" data-device-requests-new hidden><a href="{{ url_for('admin_dashboard') }}">📱 طلب جهاز جديد بانتظار المراجعة — اضغط للتحديث، ثم تحقّق عبر واتساب</a></div>
+<span hidden data-sharing-alert-total="{{ sharing_alert_total }}"></span>
+<span hidden data-pending-device-ids="{{ devices|selectattr('status','equalto','pending')|map(attribute='id')|join(',') }}"></span>
+{% if sharing_alerts %}
+<section class="panel alert-panel">
+  <h2>🔔 تنبيهات مشاركة الحساب ({{ sharing_alerts|length }})</h2>
+  <p class="tiny muted">هذه الحسابات ظهر عليها جهازان بنفس الوقت. تواصل مع الطالب عبر واتساب، وإذا تأكدت ألغِ تفعيل حسابه.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>الحساب</th><th>آخر حادثة</th><th>عدد المرات</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+    <tbody>{% for a in sharing_alerts %}
+      <tr>
+        <td><strong>{{ a['user'].username }}</strong><div class="tiny muted">{{ a['user'].email }}</div></td>
+        <td>{{ {'login_while_other_device_active':'سجّل دخولاً من جهاز ثانٍ والجهاز الأول نشط','new_device_pending_while_other_active':'حاول الدخول من جهاز جديد والجهاز الأول نشط','unapproved_device_retry_while_other_active':'أعاد المحاولة من جهاز غير معتمد والجهاز الأول نشط'}.get(a['kind'], 'جهازان بنفس الوقت') }}<div class="tiny muted">{{ a['last_at'].strftime('%Y-%m-%d %H:%M') }}</div></td>
+        <td>{{ a['count'] }}</td>
+        <td><span class="status {{ a['user'].status }}">{{ {'pending':'بانتظار التفعيل','active':'مفعّل','suspended':'غير مفعّل'}.get(a['user'].status, a['user'].status) }}</span></td>
+        <td><div class="actions">
+          {% if a['user'].whatsapp_url %}<a class="btn small-btn" href="{{ a['user'].whatsapp_url }}" target="_blank" rel="noopener noreferrer">واتساب</a>{% endif %}
+          {% if a['user'].status != 'suspended' %}<form method="post" action="{{ url_for('admin_suspend_user', user_id=a['user'].id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small-btn danger" type="submit">إلغاء التفعيل</button></form>{% endif %}
+          <form method="post" action="{{ url_for('admin_dismiss_sharing_alert', user_id=a['user'].id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small-btn secondary" type="submit">تجاهل</button></form>
+        </div></td>
+      </tr>{% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% endif %}
+<div class="statgrid admin-statgrid">
+  <div class="stat"><span>حسابات الطلاب</span><b>{{ users|length }}</b></div>
+  <div class="stat"><span>بانتظار التفعيل</span><b>{{ users|selectattr('status','equalto','pending')|list|length }}</b></div>
+  <div class="stat"><span>أجهزة تنتظر المراجعة</span><b>{{ devices|selectattr('status','equalto','pending')|list|length }}</b></div>
+  <div class="stat"><span>الأجهزة النشطة الآن</span><b data-active-device-count>{{ active_device_count }}</b><div class="tiny muted">نشاط خلال آخر دقيقتين · يتحدّث تلقائياً</div></div>
+  <div class="stat"><span>الدورات</span><b>{{ courses|length }}</b></div>
+</div>
+<section class="panel">
+  <h2>حالة قواعد البيانات</h2>
+  <div class="db-chips">{% for name, state in db_health.items() %}<span class="db-chip {{ 'bad' if state != 'متصلة' else '' }}">{{ {'None':'الرئيسية','courses':'المحتوى','audit':'سجل الأمان'}.get(name|string,name) }}: {{ state }}</span>{% endfor %}</div>
+  <p class="tiny muted">يمكن استخدام قاعدة واحدة أو فصل الحسابات والمحتوى وسجل الأمان على قواعد Supabase مستقلة.</p>
+</section>
+<section class="panel">
+  <h2>حسابات الطلاب</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>الحساب</th><th>واتساب</th><th>الحالة</th><th>الأجهزة</th><th>الإجراءات</th></tr></thead>
+    <tbody>
+    {% for u in users %}
+      <tr>
+        <td><strong>{{ u.username }}</strong><div class="tiny muted">{{ u.email }}</div><div class="tiny muted">تاريخ التسجيل: {{ u.created_at.strftime('%Y-%m-%d') }}</div></td>
+        <td>{% if u.whatsapp_url %}<a href="{{ u.whatsapp_url }}" target="_blank" rel="noopener noreferrer">{{ u.whatsapp_number }}</a><div class="tiny muted">فتح محادثة واتساب</div>{% else %}<span class="muted">لم يُضف رقماً</span>{% endif %}</td>
+        <td><span class="status {{ u.status }}">{{ {'pending':'بانتظار التفعيل','active':'مفعّل','suspended':'غير مفعّل'}.get(u.status,u.status) }}</span></td>
+        <td>{{ device_counts.get(u.id, {}).get('total', 0) }} مسجّل<div class="tiny muted">معتمد: {{ device_counts.get(u.id, {}).get('approved', 0) }}</div><div class="tiny">نشط الآن: <strong data-user-active-count="{{ u.id }}">{{ device_counts.get(u.id, {}).get('active', 0) }}</strong></div></td>
+        <td><div class="actions">
+          {% if u.status == 'active' %}
+            <form method="post" action="{{ url_for('admin_suspend_user', user_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small-btn danger" type="submit">إلغاء تفعيل الحساب</button></form>
+          {% else %}
+            <form method="post" action="{{ url_for('admin_activate_user', user_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small-btn" type="submit">تفعيل الحساب</button></form>
+          {% endif %}
+          <details style="margin-top:8px;min-width:190px">
+            <summary class="tiny">إعادة تعيين كلمة المرور</summary>
+            <form class="form-stack" style="gap:6px;margin-top:8px" method="post" action="{{ url_for('admin_reset_student_password', user_id=u.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="password" name="new_password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="كلمة مرور جديدة" required>
+              <input type="password" name="confirm_password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="تأكيد كلمة المرور" required>
+              <span class="tiny muted">لن تُرسل كلمة المرور بالبريد. شاركها مع الطالب بطريقة آمنة.</span>
+              <button class="small-btn secondary" type="submit">تعيين كلمة المرور</button>
+            </form>
+          </details>
+        </div></td>
+      </tr>
+    {% else %}<tr><td colspan="5">لا توجد حسابات بعد.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</section>
+<section class="panel">
+  <h2>إدارة الأجهزة</h2><p class="muted tiny">الجهاز نشط الآن إذا أرسل الموقع نبضة خلال آخر {{ active_window_seconds // 60 }} دقيقة. يرسل المتصفح نبضة كل 30 ثانية أثناء ظهور الموقع في الشاشة. هذا لا يثبت أن شخصاً ينظر إلى الشاشة؛ بل يدل على نشاط المتصفح حديثاً.</p><p class="tiny muted">عند طلب جهاز بديل، تحقّق من الطالب عبر رقم واتساب المسجّل قبل الاعتماد. اعتماد جهاز جديد لطالب يوقف اعتماد الجهاز السابق تلقائياً.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>الطالب</th><th>الجهاز</th><th>الاعتماد</th><th>النشاط الآن</th><th>آخر عنوان اتصال</th><th>آخر نشاط</th><th>الإجراءات</th></tr></thead>
+    <tbody>{% for d in devices %}
+      <tr><td>{{ d.user.email if d.user else 'حساب محذوف' }}{% if d.user and d.user.whatsapp_number %}<div class="tiny muted" dir="ltr">{{ d.user.whatsapp_number }}</div>{% endif %}</td><td>{{ d.label }}<div class="tiny muted">ID: {{ d.id }}</div><div class="tiny muted">بصمة مساعدة محفوظة: {{ 'نعم' if d.fp_hash else 'لا' }}</div>{% if d.app_installation_hash %}<div class="tiny muted">مفتاح Android: {{ d.app_public_key_hash[:12] if d.app_public_key_hash else 'يتطلب ربطاً ومراجعة' }}</div>{% endif %}</td>
+      <td><span class="status {{ d.status }}">{{ {'approved':'معتمد','pending':'بانتظار المراجعة','blocked':'محظور'}.get(d.status,d.status) }}</span></td>
+      <td>{% if d.id in active_device_ids %}<span data-device-active="{{ d.id }}" class="status active">نشط الآن</span>{% else %}<span data-device-active="{{ d.id }}" class="status">غير نشط</span>{% endif %}<div class="tiny muted">آخر نبضة: {{ d.last_active_at.strftime('%Y-%m-%d %H:%M:%S') if d.last_active_at else 'لم تُسجّل' }}</div></td>
+      <td>{{ d.last_ip or '—' }}</td><td>{{ d.last_seen_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td><div class="actions">
+        {% if d.user and d.user.whatsapp_url %}<a class="btn small-btn" href="{{ d.user.whatsapp_url }}?text={{ ('مرحباً ' ~ d.user.username ~ '، وصلنا طلب اعتماد أو تغيير جهاز لحسابك في Infinite Academy. هل طلبت هذا التغيير؟')|urlencode }}" target="_blank" rel="noopener noreferrer">تحقّق عبر واتساب</a>{% endif %}
+        {% if d.status != 'approved' %}<form method="post" action="{{ url_for('admin_approve_device', device_id=d.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small-btn" type="submit">اعتماد</button></form>{% endif %}
+        {% if d.status != 'blocked' %}<form method="post" action="{{ url_for('admin_block_device', device_id=d.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small-btn danger" type="submit">حظر</button></form>{% endif %}
+        <form method="post" action="{{ url_for('admin_unlink_device', device_id=d.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small-btn secondary" type="submit">فك الربط</button></form>
+      </div></td></tr>
+    {% else %}<tr><td colspan="7">لا توجد أجهزة مسجلة بعد.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+<div class="two-col">
+  <section class="panel"><h2>إنشاء دورة</h2><form class="form-stack" method="post" action="{{ url_for('admin_create_course') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="field"><label>اسم الدورة</label><input name="title" maxlength="180" required></div><div class="field"><label>الوصف</label><textarea name="description" maxlength="4000"></textarea></div><button type="submit">إنشاء الدورة</button></form><div style="margin-top:18px"><h3>الدورات الحالية</h3>{% for c in courses %}<div class="lesson-item" style="margin-top:8px"><div class="grow"><strong>{{ c.title }}</strong><div class="tiny muted">{{ c.lessons|length }} درس · ID {{ c.id }}</div></div><span class="tag good">{{ 'منشورة' if c.is_published else 'مخفية' }}</span></div>{% else %}<div class="empty">لا توجد دورات بعد.</div>{% endfor %}</div></section>
+  <section class="panel"><h2>إضافة درس فيديو</h2><form class="form-stack" method="post" action="{{ url_for('admin_create_lesson') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="field"><label>الدورة</label><select name="course_id" required>{% for c in courses %}<option value="{{ c.id }}">{{ c.title }} (ID {{ c.id }})</option>{% endfor %}</select></div><div class="field"><label>عنوان الدرس</label><input name="title" maxlength="180" required></div><div class="field"><label>VdoCipher Video ID</label><input name="vdocipher_video_id" maxlength="128" required placeholder="معرّف الفيديو فقط"></div><div class="field"><label>الوصف</label><textarea name="description" maxlength="4000"></textarea></div><div class="field"><label>الترتيب</label><input type="number" name="sort_order" value="1" min="1" required></div><button type="submit" {% if not courses %}disabled{% endif %}>إضافة الدرس</button></form><p class="tiny muted">المطلوب Video ID فقط. مفتاح API السري يوضع في متغير بيئة الخادم.</p></section>
+</div>
+<section class="panel"><h2>الدروس الحالية</h2><div class="table-wrap"><table><thead><tr><th>الترتيب</th><th>الدرس</th><th>الدورة</th><th>Video ID</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>{% for l in lessons %}<tr><td>{{ l.sort_order }}</td><td>{{ l.title }}<div class="tiny muted">ID {{ l.id }}</div></td><td>{{ l.course.title if l.course else '—' }}</td><td><code>{{ l.vdocipher_video_id }}</code></td><td><span class="tag {{ 'good' if l.is_published else '' }}">{{ 'منشور' if l.is_published else 'مخفي' }}</span></td><td><form method="post" action="{{ url_for('admin_delete_lesson', lesson_id=l.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small-btn danger" type="submit">حذف</button></form></td></tr>{% else %}<tr><td colspan="6">لا توجد دروس بعد.</td></tr>{% endfor %}</tbody></table></div><p class="tiny muted">الحذف يزيل الدرس من فهرس الموقع فقط ولا يحذف الفيديو من VdoCipher.</p></section>
+<section class="panel"><h2>آخر أحداث الأمان والإدارة</h2><div class="table-wrap"><table><thead><tr><th>الوقت</th><th>الحساب ID</th><th>الحدث</th><th>التفاصيل</th><th>عنوان الاتصال</th></tr></thead><tbody>{% for e in audit_events %}<tr><td class="nowrap">{{ e.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td>{{ e.user_id or '—' }}</td><td><code>{{ e.event_type }}</code></td><td>{{ e.details or '—' }}</td><td>{{ e.ip_address or '—' }}</td></tr>{% else %}<tr><td colspan="5">لا توجد أحداث بعد.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

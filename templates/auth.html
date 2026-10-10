@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'إنشاء حساب' if mode == 'register' else 'تسجيل الدخول' }} | ChemX{% endblock %}
+{% block content %}
+<div class="chem-auth-layout {% if mode == 'register' %}is-register{% else %}is-login{% endif %}">
+  <section class="chem-auth-intro" aria-label="عن أكاديمية الكيمياء">
+    <a class="chem-auth-brand" href="{{ url_for('index') }}" aria-label="ChemX - الصفحة الرئيسية">
+      <svg class="chem-atom" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="32" rx="27" ry="10"/><ellipse cx="32" cy="32" rx="27" ry="10" transform="rotate(60 32 32)"/><ellipse cx="32" cy="32" rx="27" ry="10" transform="rotate(120 32 32)"/><circle cx="32" cy="32" r="4"/></svg>
+      <span class="chem-auth-brand-copy"><strong>chem<span>x</span></strong><small>Learn • Explore • Achieve</small></span>
+    </a>
+
+    <div class="chem-auth-pitch">
+      <span class="chem-auth-kicker"><span class="kicker-dot"></span> رحلتك العلمية تبدأ من هنا</span>
+      <h1>{% if mode == 'register' %}ابدأ رحلتك في<br><span>عالم الكيمياء</span>{% else %}مرحباً بك في<br><span>أكاديمية الكيمياء</span>{% endif %}</h1>
+      <p>{% if mode == 'register' %}انضم إلى منصة ChemX التعليمية وكن جزءاً من مجتمع الطلاب الطموحين نحو مستقبل أفضل.{% else %}منصة تعليمية متكاملة تساعدك على فهم الكيمياء بسهولة واحترافية، خطوة بخطوة نحو مستقبلك.{% endif %}</p>
+
+      <div class="chem-auth-benefits">
+        <div class="auth-benefit">
+          <span class="benefit-icon" aria-hidden="true">♧</span>
+          <strong>دروس تفاعلية</strong><small>بأسلوب مبسط</small>
+        </div>
+        <div class="auth-benefit">
+          <span class="benefit-icon" aria-hidden="true">⚗</span>
+          <strong>محتوى شامل</strong><small>لكل المستويات</small>
+        </div>
+        <div class="auth-benefit">
+          <span class="benefit-icon" aria-hidden="true">↗</span>
+          <strong>متابعة مستمرة</strong><small>لتطورك الأكاديمي</small>
+        </div>
+      </div>
+      <div class="chem-auth-note" aria-hidden="true"><span>الكيمياء أكثر من مجرد مادة...</span><i></i><b>↙</b></div>
+    </div>
+    <div class="chem-auth-footer-note">تعلم اليوم، واصنع الفرق غداً <span>✦</span></div>
+  </section>
+
+  {% if mode == 'register' %}<a class="register-top-login" href="{{ url_for('login') }}">لديك حساب بالفعل؟ <span>تسجيل الدخول&nbsp; →</span></a>{% endif %}
+
+  <section class="chem-auth-card" aria-label="نموذج الحساب">
+    <div class="auth-card-glow" aria-hidden="true"></div>
+    <div class="auth-card-brand">
+      <svg class="chem-atom" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="32" rx="27" ry="10"/><ellipse cx="32" cy="32" rx="27" ry="10" transform="rotate(60 32 32)"/><ellipse cx="32" cy="32" rx="27" ry="10" transform="rotate(120 32 32)"/><circle cx="32" cy="32" r="4"/></svg>
+      <div><strong>chem<span>x</span></strong><small>{{ 'إنشاء حساب جديد' if mode == 'register' else 'اختر طريقك نحو التميز' }}</small></div>
+    </div>
+
+    <nav class="auth-mode-tabs" aria-label="التبديل بين تسجيل الدخول وإنشاء الحساب">
+      <a class="auth-mode-tab {% if mode == 'register' %}active{% endif %}" href="{{ url_for('register') }}" {% if mode == 'register' %}aria-current="page"{% endif %}>
+        <span>إنشاء حساب</span><span class="tab-icon" aria-hidden="true">＋</span>
+      </a>
+      <a class="auth-mode-tab {% if mode == 'login' %}active{% endif %}" href="{{ url_for('login') }}" {% if mode == 'login' %}aria-current="page"{% endif %}>
+        <span>تسجيل الدخول</span><span class="tab-icon" aria-hidden="true">♙</span>
+      </a>
+    </nav>
+
+    <div class="auth-card-heading">
+      <h2>{{ 'أنشئ حسابك الجديد' if mode == 'register' else 'أهلاً بعودتك' }}</h2>
+      <p>{% if mode == 'register' %}أنشئ حسابك وابدأ رحلتك في تعلّم الكيمياء.{% else %}سجّل الدخول لمتابعة دروسك وتقدمك الأكاديمي.{% endif %}</p>
+    </div>
+
+    <form class="chem-auth-form" method="post" autocomplete="on">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% if mode == 'login' %}
+        <input type="hidden" name="fp" value="">
+        <input type="hidden" name="app_installation_id" value="">
+        <input type="hidden" name="app_public_key" value="">
+        <input type="hidden" name="app_challenge_id" value="">
+        <input type="hidden" name="app_challenge" value="">
+        <input type="hidden" name="app_signature" value="">
+      {% endif %}
+
+      {% if mode == 'register' %}
+      <div class="chem-field">
+        <label for="username">الاسم الكامل</label>
+        <div class="chem-input-wrap"><input id="username" name="username" maxlength="80" autocomplete="name" placeholder="أدخل اسمك الكامل" required><span class="input-symbol" aria-hidden="true">♙</span></div>
+      </div>
+      {% endif %}
+
+      <div class="chem-field">
+        <label for="email">البريد الإلكتروني</label>
+        <div class="chem-input-wrap"><input id="email" type="email" name="email" maxlength="254" autocomplete="email" placeholder="أدخل بريدك الإلكتروني" required><svg class="input-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></div>
+      </div>
+
+      {% if mode == 'register' %}
+      <div class="chem-field">
+        <label for="whatsapp_number">رقم واتساب للتواصل</label>
+        <div class="chem-input-wrap"><input id="whatsapp_number" type="tel" name="whatsapp_number" maxlength="32" placeholder="+مفتاح الدولة ثم الرقم" autocomplete="tel" inputmode="tel" pattern="[+0-9\(\) \.\-]{7,32}" required><span class="input-symbol" aria-hidden="true">⌕</span></div>
+        <span class="chem-field-hint">اكتب الرقم بصيغة دولية مع + ومفتاح الدولة.</span>
+      </div>
+      {% endif %}
+
+      <div class="chem-field">
+        <label for="password">كلمة المرور</label>
+        <div class="chem-input-wrap password-wrap"><input id="password" type="password" name="password" minlength="{{ 12 if mode == 'register' else 1 }}" maxlength="128" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" placeholder="{{ 'أنشئ كلمة مرور قوية' if mode == 'register' else 'أدخل كلمة المرور' }}" required><svg class="input-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><button class="password-toggle" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false" data-password-toggle="password">◎</button></div>
+        {% if mode == 'register' %}<span class="chem-field-hint">12 محرفاً على الأقل، وبحد أقصى 128.</span>{% endif %}
+      </div>
+
+      {% if mode == 'register' %}
+      <div class="chem-field">
+        <label for="confirm_password">تأكيد كلمة المرور</label>
+        <div class="chem-input-wrap password-wrap"><input id="confirm_password" type="password" name="confirm_password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="أعد إدخال كلمة المرور" required data-confirm-password><svg class="input-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><button class="password-toggle" type="button" aria-label="إظهار تأكيد كلمة المرور" aria-pressed="false" data-password-toggle="confirm_password">◎</button></div>
+        <span class="chem-field-hint" data-password-match-message aria-live="polite">أعد كتابة كلمة المرور نفسها.</span>
+      </div>
+      <label class="auth-terms-check"><input type="checkbox" name="accept_terms" value="yes" required><span>أوافق على <a href="{{ url_for('terms') if 'terms' in current_app.view_functions else '#' }}">الشروط والأحكام</a> و<a href="{{ url_for('privacy') if 'privacy' in current_app.view_functions else '#' }}">سياسة الخصوصية</a></span></label>
+      {% endif %}
+
+      {% if mode == 'login' %}
+        <div class="auth-extra-row"><span class="remember-placeholder"><span class="remember-check" aria-hidden="true">✓</span> حسابك بأمان معنا</span><span class="forgot-help">نسيت كلمة المرور؟ تواصل مع الإدارة</span></div>
+        <p data-native-proof-error class="error" role="alert" hidden></p>
+      {% endif %}
+
+      <button class="chem-auth-submit" type="submit"><span>{{ 'إنشاء الحساب' if mode == 'register' else 'تسجيل الدخول' }}</span><span class="submit-arrow" aria-hidden="true">↗</span></button>
+    </form>
+
+    {% if mode == 'login' and support_whatsapp_url|default(none) %}
+      <a class="auth-support-link" href="{{ support_whatsapp_url }}" target="_blank" rel="noopener noreferrer">تواصل مع الدعم عبر واتساب</a>
+    {% elif mode == 'login' and support_whatsapp_enabled|default(false) %}
+      <p class="auth-support-note">إذا تغيّر جهازك، تواصل مع دعم الأكاديمية لطلب مراجعة الجهاز الجديد.</p>
+    {% endif %}
+
+    <div class="auth-bottom-link">
+      {% if mode == 'register' %}<span>لديك حساب بالفعل؟</span><a href="{{ url_for('login') }}">سجّل الدخول</a>{% else %}<span>ليس لديك حساب؟</span><a href="{{ url_for('register') }}">أنشئ حساباً جديداً</a>{% endif %}
+    </div>
+    {% if mode == 'register' %}<p class="auth-pending-note">بعد التسجيل، سيبقى الحساب بانتظار التفعيل اليدوي من الإدارة.</p>{% endif %}
+  </section>
+</div>
+<script>
+(() => {
+  const form = document.querySelector('.chem-auth-form');
+  const password = document.querySelector('#password');
+  const confirm = document.querySelector('[data-confirm-password]');
+  if (!form || !password || !confirm) return;
+  const validateMatch = () => {
+    const matches = password.value === confirm.value;
+    confirm.setCustomValidity(matches ? '' : 'كلمتا المرور غير متطابقتين');
+    const note = document.querySelector('[data-password-match-message]');
+    if (note) note.textContent = matches ? 'كلمتا المرور متطابقتان عند إدخالهما بشكل صحيح.' : 'أعد كتابة كلمة المرور نفسها.';
+  };
+  password.addEventListener('input', validateMatch);
+  confirm.addEventListener('input', validateMatch);
+  form.addEventListener('submit', validateMatch);
+})();
+</script>
+<script defer src="{{ url_for('static', filename='auth.js') }}"></script>
+{% endblock %}

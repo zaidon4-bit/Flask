@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="{% if request.endpoint == 'index' or request.endpoint in ['login', 'register'] %}#03091c{% else %}#070a12{% endif %}">
+  <meta name="description" content="{% if request.endpoint == 'index' %}ChemX: منصة تعليمية تساعدك على فهم الكيمياء من خلال دورات ودروس منظمة.{% else %}منصة تعليمية للدورات والدروس المحمية{% endif %}">
+  <title>{% block title %}Infinite Academy{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% if request.endpoint == 'index' %}<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">{% endif %}
+  {% if request.endpoint == 'dashboard' %}<link rel="stylesheet" href="{{ url_for('static', filename='student-dashboard.css') }}">{% endif %}
+  {% if request.endpoint == 'course_detail' %}<link rel="stylesheet" href="{{ url_for('static', filename='course.css') }}">{% endif %}
+  {% if request.endpoint == 'lesson_view' %}<link rel="stylesheet" href="{{ url_for('static', filename='lesson.css') }}">{% endif %}
+  {% if request.endpoint in ['login', 'register'] %}<link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">{% endif %}
+</head>
+<body class="{% if request.endpoint == 'index' %}chem-home-page{% elif request.endpoint in ['login', 'register'] %}chem-auth-page{% elif request.endpoint == 'dashboard' %}chem-student-dashboard-page{% elif request.endpoint == 'course_detail' %}chem-course-page{% elif request.endpoint == 'lesson_view' %}chem-lesson-page{% else %}academy-app-page{% endif %}">
+  <div class="container">
+    {% if request.endpoint in ['login', 'register'] %}
+      {# The authentication screen has its own ChemX brand and responsive layout. #}
+    {% elif request.endpoint == 'index' %}
+      <header class="nav chem-nav">
+        <div class="chem-nav-actions">
+          {% if current_user.is_authenticated %}
+            <a class="chem-nav-btn chem-nav-outline" href="{{ url_for('dashboard') }}">لوحة التحكم</a>
+            {% if current_user.role == 'admin' %}<a class="chem-nav-btn chem-nav-primary" href="{{ url_for('admin_dashboard') }}">الإدارة</a>{% endif %}
+            <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="chem-nav-btn chem-nav-outline" type="submit">خروج</button></form>
+          {% else %}
+            <a class="chem-nav-btn chem-nav-outline" href="{{ url_for('login') }}">تسجيل الدخول <span aria-hidden="true">♙</span></a>
+            <a class="chem-nav-btn chem-nav-primary" href="{{ url_for('register') }}">إنشاء حساب <span aria-hidden="true">♧</span></a>
+          {% endif %}
+        </div>
+        <nav class="chem-mainlinks" aria-label="التنقل الرئيسي">
+          <a class="is-current" href="#home">الرئيسية</a>
+          <a href="#materials">المواد</a>
+          <a href="#features">المميزات</a>
+          <a href="#about">من نحن</a>
+          <a href="#contact">تواصل معنا</a>
+        </nav>
+        <a class="chem-brand" href="{{ url_for('index') }}" aria-label="ChemX - الرئيسية">
+          <span class="chem-brand-copy"><strong>chem<span>x</span></strong><small>تعلّم • استكشف • حقق</small></span>
+          <svg class="chem-atom-logo" viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="24" rx="21" ry="8"/><ellipse cx="24" cy="24" rx="21" ry="8" transform="rotate(60 24 24)"/><ellipse cx="24" cy="24" rx="21" ry="8" transform="rotate(120 24 24)"/><circle cx="24" cy="24" r="3.2"/></svg>
+        </a>
+      </header>
+    {% elif request.endpoint == 'dashboard' %}
+      {# The student dashboard includes its own responsive navigation shell. #}
+    {% elif request.endpoint in ['course_detail', 'lesson_view'] %}
+      <header class="nav chem-nav chem-course-nav">
+        <div class="chem-nav-actions">
+          {% if current_user.is_authenticated %}
+            <span class="chem-course-user" title="{{ current_user.username }}"><span class="chem-course-avatar" aria-hidden="true">{{ (current_user.username or 'ط')[0] }}</span><span>{{ current_user.username }}</span></span>
+            <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="chem-nav-btn chem-nav-outline" type="submit">تسجيل الخروج</button></form>
+          {% else %}
+            <a class="chem-nav-btn chem-nav-outline" href="{{ url_for('login') }}">تسجيل الدخول</a>
+          {% endif %}
+        </div>
+        <nav class="chem-mainlinks" aria-label="التنقل الرئيسي">
+          <a href="{{ url_for('index') }}">الرئيسية</a>
+          <a class="is-current" href="{{ url_for('dashboard') }}">المواد</a>
+          <a href="{{ url_for('dashboard') }}#materials">لوحة الطالب</a>
+        </nav>
+        <a class="chem-brand" href="{{ url_for('index') }}" aria-label="ChemX - الرئيسية">
+          <span class="chem-brand-copy"><strong>chem<span>x</span></strong><small>تعلّم • استكشف • حقق</small></span>
+          <svg class="chem-atom-logo" viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="24" rx="21" ry="8"/><ellipse cx="24" cy="24" rx="21" ry="8" transform="rotate(60 24 24)"/><ellipse cx="24" cy="24" rx="21" ry="8" transform="rotate(120 24 24)"/><circle cx="24" cy="24" r="3.2"/></svg>
+        </a>
+      </header>
+    {% else %}
+      <header class="nav">
+        <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">∞</span><span>INFINITE <span style="color:var(--cyan)">ACADEMY</span></span></a>
+        <nav class="navlinks">
+          <a href="{{ url_for('index') }}">الرئيسية</a>
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}">لوحة التحكم</a>
+            <a href="{{ url_for('change_password') }}">تغيير كلمة المرور</a>
+            {% if current_user.role == 'admin' %}<a href="{{ url_for('admin_dashboard') }}">الإدارة</a>{% endif %}
+            <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secondary small-btn" type="submit">خروج</button></form>
+          {% else %}
+            <a href="{{ url_for('login') }}">تسجيل الدخول</a>
+            <a class="btn small-btn" href="{{ url_for('register') }}">إنشاء حساب</a>
+          {% endif %}
+        </nav>
+      </header>
+    {% endif %}
+    {% if request.endpoint != 'dashboard' %}
+      <div class="flashlist">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+        {% endwith %}
+      </div>
+    {% endif %}
+    <main>{% block content %}{% endblock %}</main>
+    {% if request.endpoint in ['login', 'register'] %}
+      {# Auth screen is intentionally full-screen without the generic footer. #}
+    {% elif request.endpoint == 'dashboard' %}
+      {# The dashboard uses a compact in-page footer. #}
+    {% elif request.endpoint == 'index' %}
+      <footer class="footer chem-footer" id="contact">
+        <a class="chem-footer-brand" href="{{ url_for('index') }}">chem<span>x</span></a>
+        <p>منصة تعليمية متخصصة في الكيمياء، لتعلّم أوضح ورحلة علمية أكثر تنظيماً.</p>
+        <a class="chem-footer-top" href="#home">العودة إلى الأعلى ↑</a>
+      </footer>
+    {% else %}
+      <footer class="footer"><div class="brand" style="font-size:.9rem"><span class="brand-mark" style="width:28px;height:28px;border-radius:9px">∞</span> INFINITE ACADEMY</div><p>منصة تجريبية — صلاحيات المشاهدة تُراجع من الخادم، والفيديو يُقدَّم عبر VdoCipher.</p></footer>
+    {% endif %}
+  </div>
+  {% if request.endpoint == 'login' or (current_user.is_authenticated and current_user.role == 'student') %}
+    <script defer src="{{ url_for('static', filename='device-fingerprint.js') }}"></script>
+  {% endif %}
+  {% if current_user.is_authenticated and current_user.role == 'student' %}
+    <script defer src="{{ url_for('static', filename='device-heartbeat.js') }}"
+            data-heartbeat-url="{{ url_for('device_heartbeat') }}"
+            data-login-url="{{ url_for('login') }}"
+            data-csrf-token="{{ csrf_token() }}"></script>
+  {% endif %}
+  {% if current_user.is_authenticated and current_user.role == 'admin' and request.endpoint == 'admin_dashboard' %}
+    <script defer src="{{ url_for('static', filename='admin-device-activity.js') }}"
+            data-activity-url="{{ url_for('admin_device_activity') }}"></script>
+  {% endif %}
+</body>
+</html>

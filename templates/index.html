@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}ChemX | رحلتك نحو التميز في الكيمياء{% endblock %}
+{% block content %}
+<section class="chem-hero" id="home" aria-labelledby="chem-hero-title">
+  <div class="chem-hero-content">
+    <span class="chem-eyebrow"><span class="chem-eyebrow-icon" aria-hidden="true">⚗</span> منصة تعليمية متخصصة في الكيمياء</span>
+    <h1 id="chem-hero-title">رحلتك نحو التميز في<br><span class="chem-gradient">مادة الكيمياء</span></h1>
+    <p>منصة تعليمية تساعدك على فهم الكيمياء بسهولة واحتراف، من خلال دروس منظّمة وشرح واضح ومحتوى متاح لك بعد تفعيل حسابك.</p>
+    <div class="chem-hero-actions">
+      {% if current_user.is_authenticated %}
+        <a class="chem-btn chem-btn-primary" href="{{ url_for('dashboard') }}">ابدأ الآن <span aria-hidden="true">←</span></a>
+      {% else %}
+        <a class="chem-btn chem-btn-primary" href="{{ url_for('register') }}">ابدأ الآن <span aria-hidden="true">←</span></a>
+      {% endif %}
+      <a class="chem-btn chem-btn-glass" href="#features"><span class="chem-play" aria-hidden="true">▶</span> اكتشف الأكاديمية</a>
+    </div>
+    <p class="chem-hero-note">تعلّم على طريقتك، وتابع دوراتك من مكان واحد.</p>
+  </div>
+  <div class="chem-hero-bottom-glow" aria-hidden="true"></div>
+</section>
+
+<section class="chem-features" id="features" aria-label="مميزات المنصة">
+  <article class="chem-feature-card feature-book">
+    <span class="chem-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22V5.5Z"/><path d="M4 5.5V22M8 7h8M8 11h8"/></svg>
+    </span>
+    <div><h2>شرح منظم وواضح</h2><p>دروس مرتبة لتسهيل الفهم والمراجعة خطوة بخطوة.</p></div>
+  </article>
+  <article class="chem-feature-card feature-flask">
+    <span class="chem-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-6 10a1.4 1.4 0 0 0 1.2 2h13.6a1.4 1.4 0 0 0 1.2-2L14 9V3M7 15h10M9 18h6"/></svg>
+    </span>
+    <div><h2>محتوى متخصص</h2><p>تعلّم المفاهيم العلمية ضمن دورات مخصصة للكيمياء.</p></div>
+  </article>
+  <article class="chem-feature-card feature-shield">
+    <span class="chem-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.3-8 10-4.6-1.7-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg>
+    </span>
+    <div><h2>وصول آمن</h2><p>تفعيل الحسابات والأجهزة من خلال إدارة المنصة.</p></div>
+  </article>
+  <article class="chem-feature-card feature-chart">
+    <span class="chem-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 20V12h4v8M10 20V7h4v13M16 20V3h4v17M3 20h18"/><path d="m4 8 5-4 4 2 6-4"/></svg>
+    </span>
+    <div><h2>تابع تعلّمك</h2><p>ارجع إلى دوراتك من لوحة الطالب بعد تسجيل الدخول.</p></div>
+  </article>
+</section>
+
+<section class="chem-materials" id="materials" aria-labelledby="materials-title">
+  <div class="chem-section-heading">
+    <div>
+      <span class="chem-section-kicker">استكشف وتعلّم</span>
+      <h2 id="materials-title">موادنا</h2>
+      <p>كل ما تحتاجه لتبدأ رحلتك في عالم الكيمياء.</p>
+    </div>
+    <span class="chem-heading-flask" aria-hidden="true">⚗</span>
+  </div>
+  <div class="chem-material-layout" id="about">
+    <div class="chem-material-intro">
+      <span class="chem-section-kicker">ماذا تنتظر؟</span>
+      <h3>ابدأ رحلتك مع مادة الكيمياء</h3>
+      <p>اكتشف الدورات المتاحة وتعلّم بالوتيرة التي تناسبك، مع محتوى منظم يساعدك على متابعة طريقك نحو أهدافك.</p>
+      <a class="chem-btn chem-btn-primary" href="#courses">استعرض الدورات <span aria-hidden="true">←</span></a>
+    </div>
+    <div class="chem-topic-grid">
+      <a class="chem-topic-card topic-organic" href="#courses">
+        <span class="chem-topic-art" aria-hidden="true"></span>
+        <span class="chem-topic-bottom"><span><strong>الكيمياء العضوية</strong><small>اكتشف الدورات المتاحة</small></span><span class="chem-topic-arrow" aria-hidden="true">←</span></span>
+      </a>
+      <a class="chem-topic-card topic-inorganic" href="#courses">
+        <span class="chem-topic-art" aria-hidden="true"></span>
+        <span class="chem-topic-bottom"><span><strong>الكيمياء اللاعضوية</strong><small>اكتشف الدورات المتاحة</small></span><span class="chem-topic-arrow" aria-hidden="true">←</span></span>
+      </a>
+      <a class="chem-topic-card topic-physical" href="#courses">
+        <span class="chem-topic-art" aria-hidden="true"></span>
+        <span class="chem-topic-bottom"><span><strong>الكيمياء الفيزيائية</strong><small>اكتشف الدورات المتاحة</small></span><span class="chem-topic-arrow" aria-hidden="true">←</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="chem-courses" id="courses" aria-labelledby="courses-title">
+  <div class="chem-courses-heading">
+    <div><span class="chem-section-kicker">ابدأ من هنا</span><h2 id="courses-title">الدورات المتاحة</h2><p>الدورات المنشورة على المنصة حالياً.</p></div>
+    <span class="chem-count">{{ courses|length }} دورة</span>
+  </div>
+  {% if courses %}
+    <div class="chem-course-grid">
+      {% for course in courses %}
+        <article class="chem-course-card">
+          <span class="chem-course-symbol" aria-hidden="true">⚗</span>
+          <span class="chem-course-label">دورة تعليمية</span>
+          <h3>{{ course.title }}</h3>
+          <p>{{ course.description or 'محتوى منظّم يساعدك على التعلّم خطوة بخطوة.' }}</p>
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('course_detail', course_id=course.id) }}">عرض الدورة <span aria-hidden="true">←</span></a>
+          {% else %}
+            <a href="{{ url_for('login') }}">سجّل الدخول للمتابعة <span aria-hidden="true">←</span></a>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="chem-empty">
+      <span class="chem-empty-symbol" aria-hidden="true">⚗</span>
+      <h3>الدورات قيد التجهيز</h3>
+      <p>ستظهر هنا الدورات التي ينشرها المدير على المنصة.</p>
+      {% if current_user.is_authenticated and current_user.role == 'admin' %}
+        <a class="chem-btn chem-btn-primary" href="{{ url_for('admin_dashboard') }}">إدارة الدورات</a>
+      {% else %}
+        <a class="chem-btn chem-btn-glass" href="{{ url_for('login') }}">تسجيل الدخول</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% set lesson_count = lessons|length %}
+{% block title %}{{ course.title }} | ChemX{% endblock %}
+{% block content %}
+<section class="course-hero" aria-labelledby="course-heading">
+  <div class="course-hero-art" aria-hidden="true"></div>
+  <div class="course-hero-copy">
+    <a class="course-pill" href="{{ url_for('dashboard') }}"><span class="course-pill-icon" aria-hidden="true">▤</span> المادة</a>
+    <h1 id="course-heading">{{ course.title }}</h1>
+    <p>{{ course.description or 'ابدأ رحلتك التعليمية واكتشف المفاهيم خطوة بخطوة من خلال دروس مرتبة وواضحة.' }}</p>
+    <div class="course-hero-stats" aria-label="ملخص المادة">
+      <div class="course-hero-stat"><span class="course-stat-icon" aria-hidden="true">♙</span><span><strong>محتوى تعليمي</strong><small>شرح منظم خطوة بخطوة</small></span></div>
+      <div class="course-hero-stat"><span class="course-stat-icon" aria-hidden="true">▥</span><span><strong>{{ lesson_count }} درس</strong><small>دروس منشورة للمادة</small></span></div>
+      <div class="course-hero-stat"><span class="course-stat-icon" aria-hidden="true">✦</span><span><strong>تعلّم تفاعلي</strong><small>تابع الدروس حسب ترتيبها</small></span></div>
+    </div>
+  </div>
+</section>
+
+<div class="course-content-grid">
+  <aside class="course-details panel" aria-labelledby="course-details-heading">
+    <h2 id="course-details-heading"><span aria-hidden="true">ⓘ</span> تفاصيل المادة</h2>
+    <p class="course-details-description">{{ course.description or ('تعرّف على موضوعات ' ~ course.title ~ ' من خلال دروس تعليمية مرتبة تساعدك على الفهم والمتابعة.') }}</p>
+    <div class="course-detail-stat"><span class="course-detail-icon" aria-hidden="true">▷</span><span><small>عدد الدروس</small><strong>{{ lesson_count }} درس</strong></span></div>
+    <div class="course-detail-stat"><span class="course-detail-icon" aria-hidden="true">◷</span><span><small>طريقة التعلّم</small><strong>دروس مرتبة</strong></span></div>
+    <div class="course-detail-stat"><span class="course-detail-icon" aria-hidden="true">✧</span><span><small>المادة</small><strong>{{ course.title }}</strong></span></div>
+    <a class="course-aside-cta" href="#course-lessons"><span aria-hidden="true">⚗</span><span><strong>ابدأ رحلتك في {{ course.title }}</strong><small>اختر درساً من القائمة لمتابعة التعلّم.</small></span><span aria-hidden="true">←</span></a>
+  </aside>
+
+  <section class="course-lessons panel" id="course-lessons" aria-labelledby="lessons-heading">
+    <div class="course-lessons-head">
+      <div class="course-lessons-title"><span class="course-lessons-icon" aria-hidden="true">▤</span><div><h2 id="lessons-heading">دروس المادة</h2><p>تابع الدروس بالترتيب الذي يناسبك</p></div></div>
+      <div class="course-lessons-count"><strong>{{ lesson_count }}</strong><span>درس متاح</span></div>
+    </div>
+    {% if lessons %}
+      <div class="chem-lesson-list">
+        {% for lesson in lessons %}
+          <article class="chem-lesson-card">
+            <div class="chem-lesson-thumb thumb-{{ ((loop.index0 % 5) + 1) }}" aria-hidden="true">
+              <span class="chem-thumb-glow"></span><span class="chem-thumb-number">{{ lesson.sort_order }}</span>
+              {% if loop.index0 % 3 == 0 %}
+                <svg viewBox="0 0 120 90" class="chem-thumb-art"><circle cx="60" cy="42" r="17"/><ellipse cx="60" cy="42" rx="43" ry="14"/><ellipse cx="60" cy="42" rx="43" ry="14" transform="rotate(60 60 42)"/><ellipse cx="60" cy="42" rx="43" ry="14" transform="rotate(120 60 42)"/><circle cx="60" cy="42" r="5"/></svg>
+              {% elif loop.index0 % 3 == 1 %}
+                <div class="chem-periodic-art"><span>H</span><span>He</span><span>Li</span></div>
+              {% else %}
+                <svg viewBox="0 0 120 90" class="chem-thumb-art chem-molecule-art"><path d="M22 53 48 25 78 47 96 20M48 25 42 68 78 47"/><circle cx="22" cy="53" r="8"/><circle cx="48" cy="25" r="9"/><circle cx="78" cy="47" r="10"/><circle cx="96" cy="20" r="7"/><circle cx="42" cy="68" r="7"/></svg>
+              {% endif %}
+            </div>
+            <div class="chem-lesson-copy">
+              <span class="chem-lesson-kicker">الدرس {{ lesson.sort_order }}</span>
+              <h3>{{ lesson.title }}</h3>
+              <p>{{ lesson.description or 'درس تعليمي ضمن مادة ' ~ course.title }}</p>
+            </div>
+            <div class="chem-lesson-actions">
+              <span class="chem-lesson-availability"><span aria-hidden="true">●</span> متاح</span>
+              <a class="chem-watch-btn" href="{{ url_for('lesson_view', lesson_id=lesson.id) }}">مشاهدة الدرس <span aria-hidden="true">▷</span></a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="course-empty"><span aria-hidden="true">⚗</span><strong>لا توجد دروس منشورة في هذه المادة بعد</strong><p>ستظهر الدروس هنا عندما يضيفها المشرف وينشرها.</p></div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

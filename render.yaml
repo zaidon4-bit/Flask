@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: infinite-academy
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 120
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL_MAIN
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: VDOCIPHER_API_SECRET
+        sync: false
+      - key: SUPPORT_WHATSAPP_NUMBER
+        sync: false
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: SINGLE_SESSION
+        value: "true"
+      - key: DEVICE_LIMIT
+        value: "1"
+      - key: WATERMARK_ENABLED
+        value: "true"

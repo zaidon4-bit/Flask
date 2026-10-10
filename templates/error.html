@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}خطأ {{ code }} | Infinite Academy{% endblock %}
+{% block content %}<div class="auth-wrap"><section class="panel auth-panel"><span class="eyebrow">ERROR {{ code }}</span><h1>لم نتمكن من تنفيذ الطلب</h1><p class="muted">{{ message }}</p><a class="btn" href="{{ url_for('index') }}">العودة للرئيسية</a></section></div>{% endblock %}

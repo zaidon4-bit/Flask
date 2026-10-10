@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}لوحة الطالب | ChemX{% endblock %}
+{% block content %}
+<div class="student-app-shell">
+  <aside class="student-sidebar" aria-label="قائمة الطالب">
+    <a class="student-brand" href="{{ url_for('index') }}" aria-label="ChemX الرئيسية">
+      <svg class="student-atom" viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="24" rx="21" ry="8"/><ellipse cx="24" cy="24" rx="21" ry="8" transform="rotate(60 24 24)"/><ellipse cx="24" cy="24" rx="21" ry="8" transform="rotate(120 24 24)"/><circle cx="24" cy="24" r="3"/></svg>
+      <span><strong>chem<span>x</span></strong><small>تعلّم • استكشف • حقق</small></span>
+    </a>
+    <nav class="student-side-nav">
+      <a class="active" href="#dashboard"><span>⌂</span> الصفحة الرئيسية</a>
+      <a href="#materials"><span>▤</span> مادة الكيمياء</a>
+      <a href="#devices"><span>▣</span> أجهزتي</a>
+      <a href="{{ url_for('change_password') }}"><span>♙</span> تغيير كلمة المرور</a>
+      <a href="#help"><span>ⓘ</span> المساعدة</a>
+    </nav>
+    <div class="student-side-bottom">
+      <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="student-logout"><span>⇥</span> تسجيل الخروج</button></form>
+      <div class="sidebar-copyright"><b>chem<span>x</span></b><span>© {{ now_utc().year }}</span></div>
+    </div>
+  </aside>
+
+  <div class="student-workspace">
+    <header class="student-topbar">
+      <div class="student-topbar-user"><span class="student-avatar">♙</span><span>{{ current_user.username }}</span><span class="student-chevron">⌄</span></div>
+      <span class="student-topbar-caption">مساحة الطالب <span class="topbar-spark">✦</span></span>
+    </header>
+
+    <div class="student-flashlist">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+      {% endwith %}
+    </div>
+
+    <main class="student-dashboard-content" id="dashboard">
+      <section class="student-welcome">
+        <div class="welcome-copy">
+          <span class="welcome-overline">مرحباً مجدداً</span>
+          <h1>أهلاً، <span>{{ current_user.username }}</span> <span class="wave">👋</span></h1>
+          <p>مستعد لمواصلة رحلتك في عالم الكيمياء؟</p>
+          <p class="welcome-subline">كل خطوة صغيرة تقرّبك من هدفك الكبير.</p>
+        </div>
+        <div class="welcome-medallion" aria-hidden="true"><span>⚗</span></div>
+      </section>
+
+      {% if current_user.status == 'pending' %}
+      <div class="dashboard-notice pending-notice"><span class="notice-icon">◷</span><div><strong>حسابك بانتظار التفعيل</strong><p>ستظهر لك إمكانية مشاهدة الدروس بعد اعتماد حسابك من الإدارة.</p>{% if support_whatsapp_enabled %}<a href="{{ support_url_for_user(current_user, 'account') }}" target="_blank" rel="noopener noreferrer">تواصل مع الدعم عبر واتساب ←</a>{% endif %}</div></div>
+      {% elif current_user.status == 'suspended' %}
+      <div class="dashboard-notice suspended-notice"><span class="notice-icon">!</span><div><strong>حسابك غير مفعّل حالياً</strong><p>يرجى التواصل مع الإدارة لمراجعة حالة الحساب.</p>{% if support_whatsapp_enabled %}<a href="{{ support_url_for_user(current_user, 'account') }}" target="_blank" rel="noopener noreferrer">تواصل مع الدعم عبر واتساب ←</a>{% endif %}</div></div>
+      {% else %}
+      <div class="dashboard-notice active-notice"><span class="notice-icon">✓</span><div><strong>حسابك مفعّل</strong><p>حسابك فعّال. يحتاج تشغيل الدروس إلى استخدام جهاز معتمد.</p></div><span class="notice-status">مفعّل</span></div>
+      {% endif %}
+
+      <section class="student-stat-grid" aria-label="ملخص الحساب">
+        <article class="student-stat stat-account"><span class="stat-symbol">✓</span><div class="stat-copy"><small>حالة الحساب</small><strong>{{ {'pending':'بانتظار التفعيل','active':'مفعّل','suspended':'غير مفعّل'}.get(current_user.status, current_user.status) }}</strong><span>حالة حسابك الحالية</span></div></article>
+        <article class="student-stat stat-date"><span class="stat-symbol">▦</span><div class="stat-copy"><small>تاريخ الإنشاء</small><strong>{{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else '—' }}</strong><span>تاريخ انضمامك إلى ChemX</span></div></article>
+        <article class="student-stat stat-devices"><span class="stat-symbol">▣</span><div class="stat-copy"><small>الأجهزة المعتمدة</small><strong>{{ devices|selectattr('status', 'equalto', 'approved')|list|length }} <em>/ {{ device_limit }}</em></strong><span>الحد المسموح به لحسابك</span></div></article>
+      </section>
+
+      <section class="student-section student-materials-panel" id="materials">
+        <div class="student-section-heading"><div><span class="section-kicker">تعلّم واكتشف</span><h2>مادة الكيمياء <span class="heading-flask">⚗</span></h2><p>كل ما تحتاجه لتتقدم في الكيمياء خطوة بخطوة.</p></div><span class="section-count">{{ courses|length }} مادة</span></div>
+        {% if courses %}
+          <div class="chemistry-course-grid">
+          {% for course in courses %}
+            {% set published_lessons = course.lessons|selectattr('is_published')|list %}
+            <article class="chemistry-course-card">
+              <div class="course-art" role="img" aria-label="صورة مختبر كيميائي"><span class="course-art-chip">CHEMISTRY</span><span class="course-art-orbit">⚛</span></div>
+              <div class="chemistry-course-info"><div class="course-title-row"><span class="course-mini-icon">⚗</span><span class="course-lessons-count">{{ published_lessons|length }} درس متاح</span></div><h3>{{ course.title }}</h3><p>{{ course.description or 'أساسيات الكيمياء وتطبيقاتها، مع دروس منظمة تساعدك على الفهم.' }}</p>{% if current_user.status == 'active' %}<a class="course-action" href="{{ url_for('course_detail', course_id=course.id) }}">متابعة المادة <span>←</span></a>{% else %}<span class="course-action course-action-disabled" aria-disabled="true">بانتظار التفعيل</span>{% endif %}</div>
+            </article>
+          {% endfor %}
+          </div>
+        {% else %}
+          <div class="student-empty-state"><span>⚗</span><strong>لا توجد مادة كيمياء منشورة حالياً</strong><p>ستظهر مادة الكيمياء هنا بعد إضافتها ونشرها من لوحة الإدارة.</p></div>
+        {% endif %}
+      </section>
+
+      <div class="student-lower-grid">
+        <section class="student-section student-devices-panel" id="devices">
+          <div class="student-section-heading"><div><span class="section-kicker">الأمان والاتصال</span><h2>الأجهزة المرتبطة بحسابك <span class="heading-device">▣</span></h2><p>تابع حالة اعتماد أجهزتك وآخر نشاط لكل جهاز.</p></div><span class="device-total">{{ devices|length }} جهاز</span></div>
+          {% if devices %}
+          <div class="student-device-list">
+            {% for d in devices %}
+              <article class="student-device-card">
+                <span class="device-card-icon">{% if 'android' in (d.user_agent or '')|lower or 'mobile' in (d.user_agent or '')|lower %}▯{% elif 'windows' in (d.user_agent or '')|lower %}▣{% else %}⌘{% endif %}</span>
+                <div class="device-card-main"><strong>{{ d.label }}</strong><small>أول ظهور: {{ d.first_seen_at.strftime('%Y-%m-%d %H:%M') if d.first_seen_at else 'غير متاح' }}</small><small>آخر نشاط: {{ d.last_seen_at.strftime('%Y-%m-%d %H:%M') if d.last_seen_at else 'غير متاح' }}</small></div>
+                <div class="device-card-state"><span class="device-status-pill {{ d.status }}">{{ {'approved':'معتمد','pending':'بانتظار الإدارة','blocked':'محظور'}.get(d.status,d.status) }}</span>{% if d.id in active_device_ids %}<span class="activity-state is-online"><i></i>نشط الآن</span>{% else %}<span class="activity-state"><i></i>غير نشط</span>{% endif %}</div>
+              </article>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="student-empty-inline"><span>▣</span><div><strong>لم يتم تسجيل أي جهاز بعد</strong><p>سيظهر جهازك هنا بعد تسجيل الدخول من التطبيق أو المتصفح.</p></div></div>
+          {% endif %}
+          <p class="devices-footnote">قد يتطلب مسح بيانات التطبيق أو إعادة تثبيته اعتماد الجهاز مجدداً. طلب اعتماد جهاز جديد لا يعني تعطيل الحساب تلقائياً.</p>
+        </section>
+
+        <section class="student-section student-quick-panel" id="help">
+          <div class="student-section-heading"><div><span class="section-kicker">لمحة سريعة</span><h2>إحصائيات حسابك <span class="heading-chart">▥</span></h2></div></div>
+          {% set lesson_total = namespace(count=0) %}
+          {% for c in courses %}{% set lesson_total.count = lesson_total.count + (c.lessons|selectattr('is_published')|list|length) %}{% endfor %}
+          <div class="quick-stat-grid">
+            <div class="quick-stat"><span>▤</span><div><strong>{{ courses|length }}</strong><small>مواد متاحة</small></div></div>
+            <div class="quick-stat"><span>▷</span><div><strong>{{ lesson_total.count }}</strong><small>دروس كيمياء منشورة</small></div></div>
+            <div class="quick-stat"><span>◷</span><div><strong>{{ devices|length }}</strong><small>أجهزة مسجلة</small></div></div>
+            <div class="quick-stat"><span>✓</span><div><strong>{{ active_device_count }}</strong><small>أجهزة نشطة الآن</small></div></div>
+          </div>
+          <div class="security-tip"><span>✦</span><p>للحفاظ على حسابك، استخدم أجهزتك المعتمدة فقط ولا تشارك كلمة المرور.</p></div>
+        </section>
+      </div>
+
+      <footer class="student-dashboard-footer"><span class="footer-atom">⚛</span><span>الكيمياء ليست مجرد مادة... بل هي لغة الكون.</span><a href="{{ url_for('index') }}">chem<span>x</span></a></footer>
+    </main>
+  </div>
+</div>
+{% endblock %}

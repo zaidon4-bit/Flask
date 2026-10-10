@@ -1,0 +1,104 @@
+/* ChemX course/material detail page. Kept isolated from admin and auth screens. */
+:root{--course-bg:#03091c;--course-panel:rgba(3,15,38,.88);--course-line:rgba(54,112,205,.42);--course-violet:#a653ff;--course-purple:#6937ff;--course-blue:#287cff;--course-muted:#b2c0dc}
+body.chem-course-page{overflow-x:hidden;color:#edf4ff;background:radial-gradient(ellipse at 90% 20%,rgba(39,69,170,.18),transparent 35rem),radial-gradient(ellipse at 7% 65%,rgba(102,38,191,.12),transparent 27rem),var(--course-bg)}
+.chem-course-page .container{width:min(1430px,calc(100% - 48px))}
+.chem-course-page main{min-width:0}
+.chem-course-page .flashlist:empty{display:none}
+.chem-course-page .chem-course-nav{display:grid;grid-template-columns:minmax(230px,1fr) auto minmax(200px,1fr);grid-template-areas:"actions links brand";align-items:center;gap:20px;min-height:74px;padding:10px 0;border-bottom:1px solid rgba(66,115,206,.32);direction:ltr}
+.chem-course-page .chem-nav-actions{grid-area:actions;display:flex;align-items:center;justify-self:start;gap:12px;flex-wrap:wrap;direction:rtl;min-width:0}
+.chem-course-page .chem-nav-actions form{margin:0}
+.chem-course-page .chem-nav-btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 15px;border:1px solid rgba(91,126,245,.58);border-radius:999px;background:rgba(3,10,30,.86);color:#edf2ff;font-size:.82rem;font-weight:750;white-space:nowrap}
+.chem-course-page .chem-nav-btn:hover{border-color:#a960ff;color:white}
+.chem-course-page .chem-mainlinks{grid-area:links;display:flex;align-items:center;justify-content:center;gap:clamp(12px,2.1vw,32px);direction:rtl;white-space:nowrap}
+.chem-course-page .chem-mainlinks a{position:relative;display:flex;align-items:center;min-height:47px;color:#e0e9ff;font-size:.88rem;font-weight:750}
+.chem-course-page .chem-mainlinks a:hover,.chem-course-page .chem-mainlinks a.is-current{color:#c18aff}
+.chem-course-page .chem-mainlinks a.is-current:after{position:absolute;right:0;bottom:-1px;left:0;height:3px;border-radius:5px;background:linear-gradient(90deg,#7137ff,#cb65ff);content:""}
+.chem-course-page .chem-brand{grid-area:brand;display:flex;align-items:center;justify-self:end;gap:14px;color:#eef4ff;direction:ltr}
+.chem-course-page .chem-brand-copy{display:grid;gap:0;text-align:left}
+.chem-course-page .chem-brand-copy strong{font-size:clamp(1.5rem,2.2vw,2rem);line-height:1;letter-spacing:-.06em}
+.chem-course-page .chem-brand-copy strong span{color:#b45aff}
+.chem-course-page .chem-brand-copy small{color:#aebbd8;font-size:.68rem;direction:rtl}
+.chem-course-page .chem-atom-logo{width:45px;height:45px;fill:none;stroke:#c267ff;stroke-width:1.8;filter:drop-shadow(0 0 8px rgba(148,66,255,.5))}
+.chem-course-user{display:flex;align-items:center;gap:8px;color:#dce7ff;font-size:.87rem;font-weight:700;direction:rtl}
+.chem-course-avatar{display:grid;place-items:center;width:36px;height:36px;border:1px solid #5d7fff;border-radius:50%;background:linear-gradient(135deg,#182c71,#6b32e7);color:white;box-shadow:0 0 16px #5d51fa4d}
+.course-hero{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;min-height:280px;margin:0 calc((min(1430px,100vw - 48px) - 100vw)/2) 24px;padding:24px max(24px,calc((100vw - min(1430px,100vw - 48px))/2));overflow:hidden;border-bottom:1px solid rgba(61,112,195,.35);background:linear-gradient(135deg,#03091c,#06142c)}
+.course-hero-art,.course-hero-art:before,.course-hero-art:after{position:absolute;inset:0;pointer-events:none}
+.course-hero-art{z-index:-1;overflow:hidden}
+.course-hero-art:before{content:"";background-image:url('/static/img/chemistry-lab.webp');background-size:cover;background-repeat:no-repeat;background-position:center left;transform:scaleX(-1);opacity:.86}
+.course-hero-art:after{content:"";background:linear-gradient(90deg,rgba(3,9,28,.02) 0%,rgba(3,9,28,.10) 33%,rgba(3,9,28,.68) 58%,#03091c 94%),linear-gradient(0deg,rgba(3,9,28,.48),transparent 32%,rgba(3,9,28,.16))}
+.course-hero-copy{position:relative;z-index:1;width:min(610px,55%);margin-left:0;margin-right:0;justify-self:end;text-align:right}
+.course-pill{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid #254a98;border-radius:999px;background:rgba(8,28,75,.72);color:#e2e9ff;font-size:.84rem;font-weight:750;box-shadow:0 0 18px #344dff20}
+.course-pill-icon{color:#c77dff;font-size:1.12rem}
+.course-hero h1{margin:8px 0 6px;font-size:clamp(2rem,4vw,3.25rem);font-weight:900;line-height:1.18;letter-spacing:-.04em;background:linear-gradient(100deg,#d86bff 0%,#7d8dff 58%,#3bbdff 100%);color:transparent;background-clip:text;-webkit-background-clip:text}
+.course-hero-copy>p{max-width:640px;margin:0;color:#e0e8f9;font-size:.98rem;line-height:1.9}
+.course-hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:22px;border:1px solid rgba(56,112,198,.32);border-radius:17px;background:rgba(2,10,28,.78);backdrop-filter:blur(8px)}
+.course-hero-stat{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 14px;border-left:1px solid rgba(64,113,192,.2)}
+.course-hero-stat:last-child{border-left:0}
+.course-stat-icon{display:grid;place-items:center;flex:0 0 36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#10275a,#1b2f73);color:#7caaff;font-size:1.35rem}
+.course-hero-stat:nth-child(2) .course-stat-icon{background:linear-gradient(145deg,#31165b,#5525a8);color:#d18aff}
+.course-hero-stat:nth-child(3) .course-stat-icon{background:linear-gradient(145deg,#073f55,#11577a);color:#55d5ff}
+.course-hero-stat span:last-child{display:grid;gap:2px;min-width:0}
+.course-hero-stat strong{font-size:.83rem;color:#edf2ff}
+.course-hero-stat small{font-size:.72rem;line-height:1.5;color:#a9bad8}
+.course-content-grid{display:grid;direction:ltr;grid-template-columns:minmax(270px,.34fr) minmax(0,1fr);gap:22px;align-items:start;margin:22px 0 34px}
+.course-details,.course-lessons{direction:rtl;min-width:0;margin:0;padding:22px;border:1px solid var(--course-line);border-radius:18px;background:linear-gradient(145deg,rgba(4,18,45,.93),rgba(3,12,31,.91));box-shadow:0 12px 38px rgba(0,0,0,.14)}
+.course-details h2{display:flex;align-items:center;gap:10px;margin:0 0 22px;color:#f1f4ff;font-size:1.08rem}
+.course-details h2>span{color:#9c9cff;font-size:1.5rem}
+.course-details-description{margin:0 0 20px;color:#cad5e9;font-size:.93rem;line-height:2}
+.course-detail-stat{display:flex;align-items:center;gap:13px;padding:14px 0;border-bottom:1px solid rgba(67,112,183,.18)}
+.course-detail-stat:last-of-type{border-bottom:0}
+.course-detail-icon{display:grid;place-items:center;flex:0 0 42px;height:42px;border:1px solid #164a91;border-radius:50%;background:#09204b;color:#5aabff;font-size:1.28rem}
+.course-detail-stat>span:last-child{display:grid;gap:3px}
+.course-detail-stat small{color:#9dadd0;font-size:.78rem}
+.course-detail-stat strong{color:#ecf2ff;font-size:.9rem}
+.course-aside-cta{display:flex;align-items:center;gap:11px;margin-top:22px;padding:15px 13px;border:1px solid rgba(135,81,255,.52);border-radius:13px;background:linear-gradient(130deg,rgba(77,41,158,.45),rgba(18,25,72,.6));color:#e9eaff}
+.course-aside-cta>span:first-child{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:12px;background:#4524a3;color:#dab0ff;font-size:1.5rem}
+.course-aside-cta>span:nth-child(2){display:grid;flex:1;gap:4px}
+.course-aside-cta strong{font-size:.82rem}
+.course-aside-cta small{font-size:.73rem;line-height:1.6;color:#c4c8e8}
+.course-aside-cta>span:last-child{color:#c27cff;font-size:1.3rem}
+.course-lessons{padding:0;overflow:hidden}
+.course-lessons-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 22px;border-bottom:1px solid rgba(57,112,198,.26);background:linear-gradient(100deg,rgba(6,19,45,.8),rgba(8,25,57,.55))}
+.course-lessons-title{display:flex;align-items:center;gap:14px;min-width:0}
+.course-lessons-icon{display:grid;place-items:center;flex:0 0 40px;height:40px;color:#d39aff;font-size:2rem}
+.course-lessons-title h2{margin:0;color:#f2f4ff;font-size:1.28rem}
+.course-lessons-title p{margin:3px 0 0;color:#9faecc;font-size:.8rem}
+.course-lessons-count{display:flex;align-items:baseline;gap:7px;white-space:nowrap}
+.course-lessons-count strong{color:#d9c5ff;font-size:1.06rem}
+.course-lessons-count span{color:#a8b7d4;font-size:.76rem}
+.chem-lesson-list{display:grid;gap:10px;padding:14px}
+.chem-lesson-card{display:grid;grid-template-columns:148px minmax(0,1fr) auto;grid-template-areas:"thumb copy actions";align-items:center;gap:16px;min-width:0;padding:10px;border:1px solid rgba(48,94,164,.34);border-radius:17px;background:linear-gradient(110deg,rgba(4,15,36,.96),rgba(3,13,32,.78));transition:border-color .2s ease,transform .2s ease}
+.chem-lesson-card:hover{border-color:rgba(125,92,255,.68);transform:translateY(-1px)}
+.chem-lesson-thumb{grid-area:thumb;position:relative;display:grid;place-items:center;min-height:94px;overflow:hidden;border:1px solid rgba(67,111,232,.48);border-radius:14px;background:radial-gradient(circle at 50% 55%,rgba(81,58,255,.6),transparent 48%),linear-gradient(135deg,#071d50,#080f2a 62%,#321461)}
+.chem-lesson-thumb:before{position:absolute;inset:0;content:"";background:linear-gradient(120deg,transparent,rgba(71,180,255,.08),transparent)}
+.thumb-2{background:radial-gradient(circle at 50% 50%,rgba(7,207,177,.48),transparent 50%),linear-gradient(135deg,#064447,#052032 65%,#073b56);border-color:rgba(30,213,177,.4)}
+.thumb-3{background:radial-gradient(circle at 55% 45%,rgba(255,82,233,.46),transparent 49%),linear-gradient(135deg,#25104b,#071c41 68%,#351253);border-color:rgba(197,86,255,.4)}
+.thumb-4{background:radial-gradient(circle at 45% 50%,rgba(47,134,255,.55),transparent 50%),linear-gradient(135deg,#052d62,#07152f 65%,#152f72)}
+.thumb-5{background:radial-gradient(circle at 55% 52%,rgba(255,173,54,.35),transparent 49%),linear-gradient(135deg,#46320c,#101931 70%,#3d174e);border-color:rgba(231,168,45,.4)}
+.chem-thumb-glow{position:absolute;width:78px;height:78px;border:1px solid rgba(193,156,255,.35);border-radius:50%;box-shadow:0 0 28px rgba(89,85,255,.38),inset 0 0 23px rgba(86,146,255,.14)}
+.chem-thumb-art{position:relative;width:83%;max-width:125px;overflow:visible;fill:none;stroke:#d48bff;stroke-width:1.4;filter:drop-shadow(0 0 5px rgba(153,94,255,.8))}
+.chem-thumb-art circle{fill:#5e4bda;stroke:#f0b4ff;stroke-width:1.5}
+.chem-molecule-art circle{fill:#a44bff;stroke:#f0baff}
+.chem-periodic-art{position:relative;display:flex;gap:3px;width:90%;justify-content:center}
+.chem-periodic-art span{display:grid;place-items:center;min-width:31%;height:45px;border:1px solid #49d9ff;border-radius:4px;background:linear-gradient(145deg,#143e75,#061b40);color:#a1eaff;font-size:1rem;font-weight:850;box-shadow:0 0 15px #1589ff35}
+.chem-thumb-number{position:absolute;top:7px;right:7px;z-index:1;display:grid;place-items:center;min-width:28px;height:28px;padding:0 7px;border-radius:8px;background:rgba(14,30,83,.88);color:#f0e5ff;font-size:.82rem;font-weight:850}
+.chem-lesson-copy{grid-area:copy;min-width:0;text-align:right}
+.chem-lesson-kicker{display:block;margin-bottom:3px;color:#c788ff;font-size:.77rem;font-weight:750}
+.chem-lesson-copy h3{margin:0;color:#f0f4ff;font-size:1rem;line-height:1.6;overflow-wrap:anywhere}
+.chem-lesson-copy p{margin:3px 0 0;color:#b2c0db;font-size:.8rem;line-height:1.7;overflow-wrap:anywhere}
+.chem-lesson-actions{grid-area:actions;display:grid;justify-items:center;gap:12px;min-width:128px}
+.chem-lesson-availability{display:inline-flex;align-items:center;gap:6px;color:#69e6c5;font-size:.75rem;font-weight:800}
+.chem-lesson-availability span{font-size:.65rem}
+.chem-watch-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:39px;padding:8px 15px;border:1px solid transparent;border-radius:999px;background:linear-gradient(105deg,#4c68ff,#8933f1);color:white;font-size:.8rem;font-weight:800;white-space:nowrap;box-shadow:0 5px 18px #613cff30}
+.chem-watch-btn:hover{color:#fff;filter:brightness(1.12)}
+.chem-watch-btn span{font-size:1.1rem}
+.course-empty{display:grid;justify-items:center;gap:9px;padding:42px 20px;text-align:center;color:#b3c0db}
+.course-empty>span{color:#c17aff;font-size:2rem}
+.course-empty strong{color:#ecf2ff}
+.course-empty p{margin:0;font-size:.85rem}
+.chem-course-page .footer{border-color:rgba(64,113,198,.24);color:#9aaaca}
+.chem-course-page .footer .brand{display:none}
+@media(max-width:1050px){.chem-course-page .chem-course-nav{grid-template-columns:1fr auto;grid-template-areas:"brand actions" "links links";gap:3px 14px;padding:9px 0}.chem-course-page .chem-mainlinks{justify-content:center;gap:clamp(18px,5vw,42px)}.chem-course-page .chem-mainlinks a{min-height:35px}.course-content-grid{grid-template-columns:minmax(230px,.36fr) minmax(0,1fr);gap:14px}.chem-lesson-card{grid-template-columns:116px minmax(0,1fr);grid-template-areas:"thumb copy" "thumb actions";gap:10px 14px}.chem-lesson-actions{display:flex;justify-content:space-between;justify-items:unset;min-width:0}.chem-lesson-thumb{grid-row:span 2;min-height:104px}.chem-watch-btn{min-height:35px}}
+@media(max-width:760px){.chem-course-page .container{width:calc(100% - 24px)}.chem-course-page .chem-course-nav{grid-template-columns:1fr auto;gap:8px 10px}.chem-course-page .chem-brand-copy strong{font-size:1.6rem}.chem-course-page .chem-atom-logo{width:39px;height:39px}.chem-course-page .chem-course-user>span:last-child{display:none}.chem-course-page .chem-nav-btn{min-height:35px;padding:7px 10px;font-size:.75rem}.chem-course-page .chem-mainlinks{justify-content:flex-start;gap:24px;overflow-x:auto;padding:0 2px 3px;scrollbar-width:thin}.chem-course-page .chem-mainlinks a{font-size:.82rem}.course-hero{min-height:auto;margin:0 -12px 18px;padding:24px 18px 20px}.course-hero-art:before{opacity:.63;background-position:center left}.course-hero-art:after{background:linear-gradient(90deg,rgba(3,9,28,.12),rgba(3,9,28,.58) 25%,rgba(3,9,28,.92) 68%,#03091c 100%),linear-gradient(0deg,rgba(3,9,28,.62),transparent)}.course-hero-copy{width:min(100%,600px)}.course-hero h1{font-size:clamp(2rem,8vw,2.8rem)}.course-hero-copy>p{font-size:.9rem}.course-hero-stats{grid-template-columns:1fr;margin-top:16px}.course-hero-stat{padding:8px 10px;border-left:0;border-bottom:1px solid rgba(64,113,192,.2)}.course-hero-stat:last-child{border-bottom:0}.course-stat-icon{flex-basis:31px;height:31px;font-size:1.1rem}.course-hero-stat strong{font-size:.8rem}.course-hero-stat small{font-size:.7rem}.course-content-grid{grid-template-columns:minmax(0,1fr);gap:14px;margin:14px 0 25px}.course-lessons{grid-row:1}.course-details{grid-row:2}.course-lessons-head{padding:14px;gap:10px}.course-lessons-title{gap:8px}.course-lessons-icon{flex-basis:31px;height:31px;font-size:1.6rem}.course-lessons-title h2{font-size:1.08rem}.course-lessons-title p{font-size:.72rem}.course-lessons-count{gap:4px}.course-lessons-count strong{font-size:.92rem}.course-lessons-count span{font-size:.68rem}.chem-lesson-list{gap:9px;padding:9px}.chem-lesson-card{grid-template-columns:90px minmax(0,1fr);grid-template-areas:"thumb copy" "thumb actions";gap:7px 10px;padding:8px;border-radius:13px}.chem-lesson-thumb{min-height:100px;border-radius:10px}.chem-thumb-art{width:95%}.chem-thumb-glow{width:56px;height:56px}.chem-periodic-art span{height:34px;font-size:.76rem}.chem-thumb-number{top:5px;right:5px;min-width:23px;height:23px;font-size:.7rem}.chem-lesson-kicker{font-size:.68rem}.chem-lesson-copy h3{font-size:.86rem;line-height:1.5}.chem-lesson-copy p{font-size:.72rem;line-height:1.55}.chem-lesson-actions{display:flex;align-items:center;justify-content:space-between;gap:7px}.chem-lesson-availability{font-size:.68rem;white-space:nowrap}.chem-watch-btn{min-height:32px;padding:6px 10px;font-size:.7rem;gap:6px}.course-details,.course-lessons{padding:0}.course-details{padding:16px}.course-details h2{font-size:1rem;margin-bottom:12px}.course-details-description{font-size:.84rem;line-height:1.85}.course-aside-cta{margin-top:15px}.chem-course-page .footer{margin-top:22px}}
+@media(max-width:390px){.chem-course-page .chem-mainlinks{gap:18px}.chem-course-page .chem-mainlinks a{font-size:.75rem}.chem-course-page .chem-brand-copy small{font-size:.58rem}.chem-course-page .chem-brand-copy strong{font-size:1.4rem}.chem-course-page .chem-atom-logo{width:33px;height:33px}.chem-course-user{display:none}.chem-lesson-card{grid-template-columns:78px minmax(0,1fr);gap:6px 8px}.chem-watch-btn{padding:6px 8px}.chem-lesson-copy h3{font-size:.8rem}.chem-lesson-copy p{font-size:.68rem}}
+@media(prefers-reduced-motion:reduce){.chem-lesson-card,.chem-course-page *{scroll-behavior:auto;transition:none!important}}
