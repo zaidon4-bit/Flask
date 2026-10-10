@@ -995,7 +995,7 @@ def login():
 
 
 @app.route("/change-password", methods=["GET", "POST"])
-@login_required
+@admin_required
 def change_password():
     user = current_user._get_current_object()
     if request.method == "POST":
