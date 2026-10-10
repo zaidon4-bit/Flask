@@ -98,7 +98,7 @@
         <div class="chem-input-wrap password-wrap"><input id="confirm_password" type="password" name="confirm_password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="أعد إدخال كلمة المرور" required data-confirm-password><svg class="input-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><button class="password-toggle" type="button" aria-label="إظهار تأكيد كلمة المرور" aria-pressed="false" data-password-toggle="confirm_password">◎</button></div>
         <span class="chem-field-hint" data-password-match-message aria-live="polite">أعد كتابة كلمة المرور نفسها.</span>
       </div>
-      <label class="auth-terms-check"><input type="checkbox" name="accept_terms" value="yes" required><span>أوافق على <a href="{{ url_for('terms') if 'terms' in current_app.view_functions else '#' }}">الشروط والأحكام</a> و<a href="{{ url_for('privacy') if 'privacy' in current_app.view_functions else '#' }}">سياسة الخصوصية</a></span></label>
+      <label class="auth-terms-check"><input type="checkbox" name="accept_terms" value="yes" required><span>أوافق على <a href="#">الشروط والأحكام</a> و<a href="#">سياسة الخصوصية</a></span></label>
       {% endif %}
 
       {% if mode == 'login' %}
